@@ -1,0 +1,32 @@
++ l2*m2*sin(q2)*dq2**2
+- l2*m2*cos(q2)*ddq2
++ l2*m3*sin(q2)*dq2**2
+- l2*m3*cos(q2)*ddq2
++ l3*m3*sin(q3)*dq3**2
+- l3*m3*cos(q3)*ddq3
++ m1*ddq1
++ m2*ddq1
++ m3*ddq1
+=
++ F
+- k1*dq1
+
++ l2**2*m2*ddq2
++ l2**2*m3*ddq2
++ l2*l3*m3*sin(q2-q3)*dq3**2
++ l2*l3*m3*cos(q2-q3)*ddq3
+- l2*m2*cos(q2)*ddq1
+- l2*m3*cos(q2)*ddq1
+=
++ g*l2*m2*sin(q2)
++ g*l2*m3*sin(q2)
++ k2*dq2
+
+- l2*l3*m3*sin(q2-q3)*dq2**2
++ l2*l3*m3*cos(q2-q3)*ddq2
++ l3**2*m3*ddq3
+- l3*m3*cos(q3)*ddq1
+=
++ g*l3*m3*sin(q3)
++ k3*dq3
+
