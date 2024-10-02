@@ -20,7 +20,7 @@
 =
 + g*l2*m2*sin(q2)
 + g*l2*m3*sin(q2)
-+ k2*dq2
+- k2*dq2
 
 - l2*l3*m3*sin(q2-q3)*dq2**2
 + l2*l3*m3*cos(q2-q3)*ddq2
@@ -28,5 +28,4 @@
 - l3*m3*cos(q3)*ddq1
 =
 + g*l3*m3*sin(q3)
-+ k3*dq3
-
+- k3*dq3

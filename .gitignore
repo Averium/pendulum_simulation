@@ -1,2 +1,3 @@
-obj
-main.exe
+main.exe 
+obj 
+python/__pycache__ 
