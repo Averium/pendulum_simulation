@@ -1,3 +1,4 @@
 main.exe 
 obj 
 python/__pycache__ 
+.vscode
