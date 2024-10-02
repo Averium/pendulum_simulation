@@ -76,8 +76,9 @@ void Framework::events(void) {
     if (IsKeyPressed(KEY_R)) { reset(); }
     if (IsKeyPressed(KEY_P)) { paused = !paused; }
 
-    if (IsKeyDown(KEY_A)) { x_ref -= sim_time * 10; }
-    if (IsKeyDown(KEY_D)) { x_ref += sim_time * 10; }
+    double frame_time = GetFrameTime();
+    if (IsKeyDown(KEY_A)) { x_ref -= frame_time; }
+    if (IsKeyDown(KEY_D)) { x_ref += frame_time; }
 }
 
 
