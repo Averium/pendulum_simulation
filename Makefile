@@ -11,13 +11,21 @@ GCC := g++ -std=c++20
 
 EXE := main
 
-RAYLIB_LINK_FLAGS := -lraylib -lopengl32 -lgdi32 -lwinmm
+LINK_FLAGS := -lraylib -lpendulum -lopengl32 -lgdi32 -lwinmm
+
+# PENDULUM LIBRARY #
+PENDULUM_FILE := pendulum
+PENDULUM_SOURCE := $(SOURCE_FOLDER)/$(PENDULUM_FILE)$(C)
+PENDULUM_OBJECT := $(OBJECT_FOLDER)/$(PENDULUM_FILE)$(O)
+PENDULUM_LIB := $(LIBRARY_FOLDER)/lib$(PENDULUM_FILE).a
+# ---------------- #
 
 SOURCE := $(wildcard $(SOURCE_FOLDER)/*$(C))
+SOURCE := $(filter-out $(PENDULUM_SOURCE),$(SOURCE))
 OBJECT := $(patsubst $(SOURCE_FOLDER)/%$(C),$(OBJECT_FOLDER)/%$(O),$(SOURCE))
 HEADER := $(wildcard $(INCLUDE_FOLDER)/*$(H))
 
-LINK := -L$(LIBRARY_FOLDER) $(RAYLIB_LINK_FLAGS)
+LINK := -L$(LIBRARY_FOLDER) $(LINK_FLAGS)
 
 
 all: $(OBJECT) $(HEADER)
@@ -30,6 +38,14 @@ $(OBJECT_FOLDER)/%$(O): $(SOURCE_FOLDER)/%$(C) $(HEADER) | $(OBJECT_FOLDER)
 
 $(OBJECT_FOLDER):
 	@mkdir $(OBJECT_FOLDER)
+
+
+# Pendulum library #
+
+pendulum: $(PENDULUM_OBJECT) $(HEADER) | $(OBJECT_FOLDER)
+	ar rcs $(PENDULUM_LIB) $(PENDULUM_OBJECT)
+
+# PHONY #
 
 .PHONY: clean
 clean:
