@@ -41,12 +41,12 @@ void Pendulum::reset(ConfigFile<float>& PARAMS) {
 
 Matrix2D<double, 6, 1> Pendulum::get_state(void) const {
     return Matrix2D<double, 6, 1>({
-        -coordinates(0),
-        -velocities(0),
-        -coordinates(1),
-        -velocities(1),
-        -coordinates(2),
-        -velocities(2)
+        coordinates(0),
+        velocities(0),
+        coordinates(1),
+        velocities(1),
+        coordinates(2),
+        velocities(2)
     });
 }
 
@@ -100,7 +100,6 @@ void Pendulum::update(const double dt) {
     velocities += accelerations * dt;
     coordinates += velocities * dt;
 
-    // rail collision
     if (coordinates(0) < -l1 / 2.0F) {
         coordinates(0) = -l1 / 2.0F;
         collided = true;

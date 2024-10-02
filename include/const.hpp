@@ -19,4 +19,5 @@ namespace PATH {
 static ConfigFile<unsigned int> LAYOUT(PATH::LAYOUT_FILE);
 static ConfigFile<float> PARAMS(PATH::PARAMS_FILE);
 static ConfigFile<float> TIMING(PATH::TIMING_FILE);
+static ConfigFile<double> TUNING(PATH::TUNING_FILE);
 static ColorFile COLORS = ColorFile(PATH::COLORS_FILE);

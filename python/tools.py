@@ -1,6 +1,4 @@
 
-from os.path import join
-
 
 REPLACE = (
     ("Derivative(q1(t), t)", "dq1"),
@@ -48,10 +46,3 @@ def print_eq(symbol):
     for args in REPLACE:
         text = text.replace(*args)
     print(text)
-
-
-def save_equations(equations, filename):
-
-    with open(join("python", filename), "w+") as FILE:
-        text = map(print_expr, equations)
-        FILE.writelines(text)

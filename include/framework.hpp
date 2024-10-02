@@ -35,12 +35,13 @@ private:
     bool paused;
 
     double sim_time;
+    double x_ref;
 
     Font font;
 
     Timer simulation_timer;
     Pendulum pendulum;
     LQRController<6, 1> controller;
-    
+
     std::thread simulation;
 };

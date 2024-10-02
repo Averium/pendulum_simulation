@@ -3,6 +3,7 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 
 
 Framework::Framework() {
@@ -11,8 +12,10 @@ Framework::Framework() {
     init_objects();
     init_controller();
 
+    x_ref = PARAMS("INITIAL_Q1");
+
     running = false;
-    paused = false;
+    paused = true;
 }
 
 
@@ -30,22 +33,19 @@ void Framework::init_objects(void) {
 
 
 void Framework::init_controller(void) {
+    TUNING.read_data();
 
-    const unsigned int state_dim = 6U;
-    const unsigned int input_dim = 1U; 
+    double init[6] = {
+        TUNING("K1"),
+        TUNING("K2"),
+        TUNING("K3"),
+        TUNING("K4"),
+        TUNING("K5"),
+        TUNING("K6")
+    };
 
-    ConfigFile<float> T(PATH::TUNING_FILE);
-
-    Matrix2D<double, state_dim, state_dim> A;
-    Matrix2D<double, state_dim, input_dim> B;
-
-    // fill A and B matrices here //
-
-    double q_diag[state_dim] = {T("Q1"), T("Q2"), T("Q3"), T("Q4"), T("Q5"), T("Q6")};
-    auto Q = Matrix2D<double, state_dim, state_dim>::diagonal(q_diag);
-    Matrix2D<double, input_dim, input_dim> R({T("R1")});
-
-    controller = LQRController<state_dim, input_dim>(A, B, Q, R);
+    Matrix2D<double, 1, 6> K(init);
+    controller = LQRController<6, 1>(K);
 }
 
 
@@ -66,6 +66,8 @@ void Framework::stop(void) {
 
 void Framework::reset(void) {
     pendulum.reset(PARAMS);
+    x_ref = PARAMS("INITIAL_Q1");
+    init_controller();
 }
 
 
@@ -73,17 +75,25 @@ void Framework::events(void) {
     if (WindowShouldClose()) { running = false; }
     if (IsKeyPressed(KEY_R)) { reset(); }
     if (IsKeyPressed(KEY_P)) { paused = !paused; }
+
+    if (IsKeyDown(KEY_A)) { x_ref -= sim_time * 10; }
+    if (IsKeyDown(KEY_D)) { x_ref += sim_time * 10; }
 }
 
 
 void Framework::update_loop(void) {
     while (running) {
         double time_passed = simulation_timer.tick();
-        if (time_passed > 0.0F) {
-            Matrix2D<double, 1, 1> reference({0.0F});
-            double F = controller.control(pendulum.get_state())(0);
+        if (time_passed > 0.0F && !paused) {
+
+            Matrix2D<double, 6, 1> reference({x_ref, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F});
+
+            double F = controller.control(pendulum.get_state(), reference)(0);
+            F = std::clamp<double>(F, -10, 10);
+
             pendulum.force(F);
             pendulum.update(time_passed);
+
             sim_time = time_passed;
         }
     }
@@ -103,10 +113,19 @@ void Framework::render(void) {
     snprintf(buffer, sizeof(buffer), "Simulation : %.3f [ms]", sim_time * S_TO_MS);
     DrawTextEx(font, buffer, {10, 40}, 32, 2, COLORS("TEXT"));
 
-    snprintf(buffer, sizeof(buffer), "Control    : -    [ms]", sim_time * S_TO_MS);
-    DrawTextEx(font, buffer, {10, 70}, 32, 2, COLORS("TEXT"));
+    //snprintf(buffer, sizeof(buffer), "Control : %.3f [m]", x_ref);
+    //DrawTextEx(font, buffer, {10, 70}, 32, 2, COLORS("TEXT"));
+
+    if (paused) {
+        DrawTextEx(font, "paused", {10, 70}, 32, 2, COLORS("CIRCLE"));
+    }
 
     pendulum.render();
+
+    float x = ((float)x_ref * LAYOUT("SCALE")) + LAYOUT("WINDOW_WIDTH") / 2;
+    float y = LAYOUT("WINDOW_HEIGHT") * 0.55;
+    
+    DrawTriangleLines({x, y}, {x + 10.0F, y + 20.0F}, {x - 10.0F, y + 20.0F}, COLORS("REFERENCE"));
     
     EndDrawing();
 }

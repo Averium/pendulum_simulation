@@ -33,6 +33,7 @@ def state_space(equations, variables):
 
     state = [x1, x2, x3, x4, x5, x6]
     functions = [dx1, dx2, dx3, dx4, dx5, dx6]
+    inputs = [F]
 
     equillibrium = [(x1, 0), (x2, 0), (x3, 0), (x4, 0), (x5, 0), (x6, 0)]
 
@@ -43,11 +44,16 @@ def state_space(equations, variables):
     for row, function in enumerate(functions):
         for col, variable in enumerate(state):
             A[row, col] = simplify(diff(function, variable).doit().subs(equillibrium))
-            print_eq(f"A[{row}, {col}] = {A[row, col]}")
-        print()
 
-    B = Matrix([[F], [0], [0], [0], [0], [0]])
+    B = Matrix([[0], [0], [0], [0], [0], [0]])
+
+    for row, function in enumerate(functions):
+        for col, input in enumerate(inputs):
+            B[row, col] = simplify(diff(function, input).doit().subs(equillibrium))
+
     C = Matrix([[0, 0, 0, 0, 0, 0]])
     D = Matrix([[0]])
 
     print("MODEL: linearized model created")
+
+    return A, B, C, D

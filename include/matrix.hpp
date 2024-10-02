@@ -15,11 +15,11 @@ class Matrix2D {
 public:
     Matrix2D() { data.fill(static_cast<TYPE>(0)); }
 
-    Matrix2D(const Matrix2D& other) {
+    Matrix2D(const Matrix2D<TYPE, ROWS, COLS>& other) {
         data = other.data;
     }
 
-    Matrix2D& operator=(const Matrix2D& other) {
+    Matrix2D& operator=(const Matrix2D<TYPE, ROWS, COLS>& other) {
         if (this != &other) {
             data = other.data;
         }
