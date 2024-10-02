@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <cassert>
+#include <cmath>
 
 #include "const.hpp"
 
@@ -13,7 +14,40 @@ class Matrix2D {
 
 public:
     Matrix2D() { data.fill(static_cast<TYPE>(0)); }
-    Matrix2D(const std::array<TYPE, ROWS * COLS>& init) { data = init; }
+
+    Matrix2D(const Matrix2D& other) {
+        data = other.data;
+    }
+
+    Matrix2D& operator=(const Matrix2D& other) {
+        if (this != &other) {
+            data = other.data;
+        }
+        return *this;
+    }
+
+    template <typename TYPE_U>
+    Matrix2D(const std::array<TYPE_U, ROWS * COLS>& init) {
+        for (unsigned int element = 0U; element < ROWS * COLS; ++element) {
+            data[element] = static_cast<TYPE>(init[element]);
+        }
+    }
+
+    Matrix2D(std::initializer_list<TYPE> init) {
+        assert(init.size() == ROWS * COLS);
+        std::copy(init.begin(), init.end(), data.begin());
+    }
+
+    Matrix2D(const TYPE* init) {
+        std::copy(init, init + ROWS * COLS, data.begin());
+    }
+
+    /*
+    template <typename... Args>
+    Matrix2D(Args&&... args) : data{ std::forward<Args>(args)... } {
+        static_assert(sizeof...(args) == ROWS * COLS, "Incorrect number of elements.");
+    }
+    */
 
     static Matrix2D<TYPE, ROWS, COLS> identity(void) {
         Matrix2D<TYPE, ROWS, COLS> result;
@@ -21,6 +55,14 @@ public:
             for (unsigned int col = 0U; col < COLS; ++col) {
                 result(row, col) = (row == col) ? static_cast<TYPE>(1) : static_cast<TYPE>(0);
             }
+        }
+        return result;
+    }
+
+    static Matrix2D<TYPE, ROWS, COLS> diagonal(const TYPE* init) {
+        Matrix2D<TYPE, ROWS, COLS> result;
+        for (unsigned int element = 0U; element < ROWS; ++element) {
+            result(element, element) = init[element];
         }
         return result;
     }
@@ -59,20 +101,34 @@ public:
     }
 
     template <typename TYPE_U>
-    void operator += (const Matrix2D<TYPE_U, ROWS, COLS>& other) {
-        Matrix2D<TYPE, ROWS, COLS> result;
-        for (unsigned int index = 0U; index < COLS * ROWS; ++index) {
-            data[index] = data[index] + other(index);
-        }
-    }
-
-    template <typename TYPE_U>
     Matrix2D<TYPE, ROWS, COLS> operator - (const Matrix2D<TYPE_U, ROWS, COLS>& other) const {
         Matrix2D<TYPE, ROWS, COLS> result;
         for (unsigned int index = 0U; index < COLS * ROWS; ++index) {
             result(index) = data[index] - other(index);
         }
         return result;
+    }
+
+    Matrix2D<TYPE, ROWS, COLS> operator - (void) const {
+        Matrix2D<TYPE, ROWS, COLS> result;
+        for (unsigned int index = 0U; index < COLS * ROWS; ++index) {
+            result(index) = -data[index];
+        }
+        return result;
+    }
+
+    template <typename TYPE_U>
+    void operator += (const Matrix2D<TYPE_U, ROWS, COLS>& other) {
+        for (unsigned int index = 0U; index < COLS * ROWS; ++index) {
+            data[index] = data[index] + other(index);
+        }
+    }
+
+    template <typename TYPE_U>
+    void operator -= (const Matrix2D<TYPE_U, ROWS, COLS>& other) {
+        for (unsigned int index = 0U; index < COLS * ROWS; ++index) {
+            data[index] = data[index] - other(index);
+        }
     }
 
     template <typename TYPE_U, unsigned int COLS_U>
@@ -155,6 +211,14 @@ public:
     Matrix2D<TYPE, ROWS, COLS * 2> concath(void) const { return concath(*this); }
 
     Matrix2D<TYPE, ROWS * 2, COLS> concatv(void) const { return concatv(*this); }
+
+    TYPE norm(void) const {
+        TYPE sum = static_cast<TYPE>(0);
+        for (unsigned int index = 0U; index < ROWS * COLS; ++index) {
+            sum += data[index] * data[index];
+        }
+        return std::sqrt(sum);
+    }
 
     Matrix2D<TYPE, COLS, ROWS> transpose(void) const {
         Matrix2D<TYPE, COLS, ROWS> transposed;

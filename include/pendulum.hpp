@@ -13,7 +13,7 @@ public:
     Pendulum();
     Pendulum(ConfigFile<float>& PARAMS);
 
-    void control(const double force);
+    void force(const double input);
     void reset(ConfigFile<float>& PARAMS);
 
     void update(const double dt);
@@ -22,11 +22,11 @@ public:
     Matrix2D<double, 6, 1> get_state(void) const;
 
 private:
-    Matrix2D<double, 3, 1> coordinates;
-    Matrix2D<double, 3, 1> velocities;
-    Matrix2D<double, 3, 1> accelerations;
+    Matrix2D<double, 3, 1> coordinates{};
+    Matrix2D<double, 3, 1> velocities{};
+    Matrix2D<double, 3, 1> accelerations{};
 
-    double force;
+    double input;
     bool collided;
 
     double m1;

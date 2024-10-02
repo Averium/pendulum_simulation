@@ -12,7 +12,8 @@ namespace PATH {
     const std::string LAYOUT_FILE = "resources/data/layout";
     const std::string PARAMS_FILE = "resources/data/params";
     const std::string TIMING_FILE = "resources/data/timing";
-    const std::string FONT_FILE = "resources/fonts/COURBD.TTF";
+    const std::string TUNING_FILE = "resources/data/tuning";
+    const std::string FONT_FILE =   "resources/fonts/COURBD.TTF";
 }
 
 static ConfigFile<unsigned int> LAYOUT(PATH::LAYOUT_FILE);

@@ -8,6 +8,7 @@
 
 #include "timer.hpp"
 #include "pendulum.hpp"
+#include "controller.hpp"
 
 
 class Framework {
@@ -17,6 +18,7 @@ public:
 
     void init_window(void);
     void init_objects(void);
+    void init_controller(void);
 
     void start(void);
     void stop(void);
@@ -38,6 +40,7 @@ private:
 
     Timer simulation_timer;
     Pendulum pendulum;
+    LQRController<6, 1> controller;
     
     std::thread simulation;
 };

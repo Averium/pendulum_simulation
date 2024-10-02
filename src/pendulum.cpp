@@ -10,11 +10,13 @@ Pendulum::Pendulum(ConfigFile<float>& PARAMS) {
 }
 
 void Pendulum::reset(ConfigFile<float>& PARAMS) {
-    std::array<double, 3> init_q = {PARAMS("INITIAL_Q1"), PARAMS("INITIAL_Q2"), PARAMS("INITIAL_Q3")};
-    std::array<double, 3> init_v = {PARAMS("INITIAL_V1"), PARAMS("INITIAL_V2"), PARAMS("INITIAL_V3")};
 
-    coordinates = Matrix2D<double, 3, 1>(init_q);
-    velocities = Matrix2D<double, 3, 1>(init_v);
+    coordinates = Matrix2D<double, 3, 1>(
+        {PARAMS("INITIAL_Q1"), PARAMS("INITIAL_Q2"), PARAMS("INITIAL_Q3")}
+    );
+    velocities = Matrix2D<double, 3, 1>(
+        {PARAMS("INITIAL_V1"), PARAMS("INITIAL_V2"), PARAMS("INITIAL_V3")}
+    );
 
     m1 = PARAMS("CART_MASS");
     m2 = PARAMS("LOWER_MASS");
@@ -38,11 +40,18 @@ void Pendulum::reset(ConfigFile<float>& PARAMS) {
 }
 
 Matrix2D<double, 6, 1> Pendulum::get_state(void) const {
-    return Matrix2D<double, 6, 1>::identity();
+    return Matrix2D<double, 6, 1>({
+        -coordinates(0),
+        -velocities(0),
+        -coordinates(1),
+        -velocities(1),
+        -coordinates(2),
+        -velocities(2)
+    });
 }
 
-void Pendulum::control(const double force) {
-    this->force = force;
+void Pendulum::force(const double input) {
+    this->input = input;
 }
 
 void Pendulum::update(const double dt) {
@@ -66,7 +75,7 @@ void Pendulum::update(const double dt) {
     double e = +m3_l2_l3 * cos(q2 - q3);
 
     double A =
-        + force
+        + input
         - m2_p_m3_l2_sin_q2 * dq2_dq2
         - m3_l3_sin_q3 * dq3_dq3
         - k1 * dq1;
@@ -81,13 +90,11 @@ void Pendulum::update(const double dt) {
         + g * m3_l3_sin_q3
         - k3 * dq3;
 
-    Matrix2D<double, 3, 3> M(std::array<double, 9>({a, b, c, b, d, e, c, e, f}));
-    Matrix2D<double, 3, 1> G(std::array<double, 3>({A, B, C}));
+    Matrix2D<double, 3, 3> M({a, b, c, b, d, e, c, e, f});
+    Matrix2D<double, 3, 1> G({A, B, C});
     Matrix2D<double, 3, 3> iM = M.inverse();
 
-    if (collided) {
-        G(0) = -(dq1 / dt + B * iM(0, 1) + C * iM(0, 2)) / iM(0, 0);
-    }
+    if (collided) { G(0) = -(dq1 / dt + B * iM(0, 1) + C * iM(0, 2)) / iM(0, 0); }
 
     accelerations = M.inverse() * G;
     velocities += accelerations * dt;
@@ -135,7 +142,6 @@ void Pendulum::render(void) const {
     const float right_wall_x = LAYOUT("WINDOW_WIDTH") / 2.0F + wall;
     const float wall_y = (LAYOUT("WINDOW_HEIGHT") - wall_height) / 2.0F;
 
-    //DrawRectangle(wall, LAYOUT("WINDOW_HEIGHT") / 2.0F, wall_width, wall_height, COLORS("RAIL"));
     DrawRectangle(left_wall_x, wall_y, wall_width, wall_height, COLORS("WALL"));
     DrawRectangle(right_wall_x, wall_y, wall_width, wall_height, COLORS("WALL"));
 
