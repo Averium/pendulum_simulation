@@ -37,6 +37,7 @@ private:
 
     double sim_time;
     double x_ref;
+    double f_max;
 
     Font font;
 

@@ -51,8 +51,8 @@ if __name__ == "__main__":
     C = load_result("linear_C")
     D = load_result("linear_D")
 
-    Q = [100, 1, 10, 1, 10, 1]
-    R = [0.001]
+    Q = [1000, 10, 100, 50, 150, 50]
+    R = [0.01]
 
     T = 0.001
 

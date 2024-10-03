@@ -15,8 +15,8 @@ Framework::Framework() {
     x_ref = PARAMS("INITIAL_Q1");
 
     running = false;
-    paused = false;
-    control = false;
+    paused = (bool)(TIMING("PAUSED"));
+    control = (bool)(TIMING("CONTROL"));
 }
 
 
@@ -68,6 +68,7 @@ void Framework::stop(void) {
 void Framework::reset(void) {
     pendulum.reset(PARAMS);
     x_ref = PARAMS("INITIAL_Q1");
+    f_max = 0.0F;
     init_controller();
 }
 
@@ -92,7 +93,8 @@ void Framework::update_loop(void) {
             Matrix2D<double, 6, 1> reference({x_ref, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F});
 
             double F = controller.control(pendulum.get_state(), reference)(0);
-            F = std::clamp<double>(F, -10, 10);
+            F = std::clamp<double>(F, -PARAMS("F_MAX"), PARAMS("F_MAX"));
+            f_max = std::max(std::abs(F), f_max);
 
             if (control) { pendulum.force(F); }
             pendulum.update(time_passed);
