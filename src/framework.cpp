@@ -15,7 +15,8 @@ Framework::Framework() {
     x_ref = PARAMS("INITIAL_Q1");
 
     running = false;
-    paused = true;
+    paused = false;
+    control = false;
 }
 
 
@@ -75,6 +76,7 @@ void Framework::events(void) {
     if (WindowShouldClose()) { running = false; }
     if (IsKeyPressed(KEY_R)) { reset(); }
     if (IsKeyPressed(KEY_P)) { paused = !paused; }
+    if (IsKeyPressed(KEY_SPACE)) { control = !control; }
 
     double frame_time = GetFrameTime();
     if (IsKeyDown(KEY_A)) { x_ref -= frame_time; }
@@ -92,7 +94,7 @@ void Framework::update_loop(void) {
             double F = controller.control(pendulum.get_state(), reference)(0);
             F = std::clamp<double>(F, -10, 10);
 
-            pendulum.force(F);
+            if (control) { pendulum.force(F); }
             pendulum.update(time_passed);
 
             sim_time = time_passed;
@@ -123,10 +125,11 @@ void Framework::render(void) {
 
     pendulum.render();
 
-    float x = ((float)x_ref * LAYOUT("SCALE")) + LAYOUT("WINDOW_WIDTH") / 2;
-    float y = LAYOUT("WINDOW_HEIGHT") * 0.55;
-    
-    DrawTriangleLines({x, y}, {x + 10.0F, y + 20.0F}, {x - 10.0F, y + 20.0F}, COLORS("REFERENCE"));
+    if (control) {
+        float x = ((float)x_ref * LAYOUT("SCALE")) + LAYOUT("WINDOW_WIDTH") / 2;
+        float y = LAYOUT("WINDOW_HEIGHT") * 0.6;
+        DrawTriangleLines({x, y}, {x + 10.0F, y + 20.0F}, {x - 10.0F, y + 20.0F}, COLORS("REFERENCE"));
+    }
     
     EndDrawing();
 }

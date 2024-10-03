@@ -33,6 +33,7 @@ public:
 private:
     bool running;
     bool paused;
+    bool control;
 
     double sim_time;
     double x_ref;
